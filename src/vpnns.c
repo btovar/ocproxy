@@ -67,6 +67,34 @@
 #define __printf_attr
 #endif
 
+#ifndef HAVE_SETNS
+#include <unistd.h>
+#ifndef SYS_setns
+#define SYS_setns __NR_setns
+#endif
+
+
+
+#include <sys/syscall.h>
+
+/* For some reason Centos 6.5 doesn't define SYS_setns */
+#ifndef SYS_setns
+#define SYS_setns __NR_setns
+#endif
+
+#ifndef MS_SLAVE	/* Since glibc 2.12, but Linux since 2.6.15 */
+#include <linux/fs.h>
+#endif
+static int
+setns(int fd, int nstype)
+{
+	return (int)syscall(SYS_setns, fd, nstype);
+}
+#endif
+
+
+
+
 struct packet_loop_ctx {
 	struct event_base *event_base;
 	struct event *tun_event;
